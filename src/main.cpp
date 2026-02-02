@@ -173,20 +173,25 @@ private:
     vkDeviceWaitIdle(device);
   }
 
-  static void frameBufferResizeCallback(GLFWwindow* window, int width, int height) {
-    auto app = reinterpret_cast<triangleApp*>(glfwGetWindowUserPointer(window));
+  static void frameBufferResizeCallback(GLFWwindow *window,
+                                        int width [[maybe_unused]],
+                                        int height [[maybe_unused]]) {
+    auto app =
+        reinterpret_cast<triangleApp *>(glfwGetWindowUserPointer(window));
     app->frameBufferResized = true;
   }
 
   void drawFrame() {
-    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
+                    UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX,
-                          imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(
+        device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
+        VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-      recreateSwapChain(); 
+      recreateSwapChain();
       return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
       throw std::runtime_error("failed to acquire swapchain image");
@@ -212,8 +217,8 @@ private:
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) !=
-        VK_SUCCESS)
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                      inFlightFences[currentFrame]) != VK_SUCCESS)
       throw std::runtime_error("failed to submit draw command buffer");
 
     VkPresentInfoKHR presentInfo{};
@@ -229,12 +234,12 @@ private:
 
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || frameBufferResized) {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+        frameBufferResized) {
       frameBufferResized = false;
       recreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
-     throw std::runtime_error("failed to present swapchain image");
+    } else if (result != VK_SUCCESS)
+      throw std::runtime_error("failed to present swapchain image");
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES;
   }
@@ -700,7 +705,7 @@ private:
   void recreateSwapChain() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
-    while(width == 0 || height == 0) {
+    while (width == 0 || height == 0) {
       glfwGetFramebufferSize(window, &width, &height);
       glfwWaitEvents();
     }
@@ -1030,11 +1035,11 @@ private:
     }
   }
 
-  static VKAPI_ATTR VkBool32 VKAPI_CALL
-  debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                VkDebugUtilsMessageTypeFlagsEXT messageType,
-                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                void *pUserData) {
+  static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+      VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity [[maybe_unused]],
+      VkDebugUtilsMessageTypeFlagsEXT messageType [[maybe_unused]],
+      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+      void *pUserData [[maybe_unused]]) {
     std::cerr << "validations layers: " << pCallbackData->pMessage << std::endl;
 
     return VK_FALSE;
